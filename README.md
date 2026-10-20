@@ -11,6 +11,10 @@ Incluye `composer.lock`, no necesita build de assets y no tiene secretos.
 - `/smoke/mark` — escribe una sola vez un marcador con fecha y release en
   `storage/app/` y en `data/`; las llamadas siguientes no lo cambian. `/smoke`
   muestra ambos en `persistence` e indica si cada directorio es un enlace administrado.
+- `/smoke/after-backup` — simula cambios hechos después de un punto de
+  recuperación: borra los dos marcadores y agrega la fila
+  `Added after the recovery point`. Al restaurar, los marcadores deben volver y
+  la fila desaparecer (`/smoke` muestra todas las filas en `smoke_notes`).
 - `/up` — health check estándar de Laravel.
 - `/` — redirige a `/smoke`.
 

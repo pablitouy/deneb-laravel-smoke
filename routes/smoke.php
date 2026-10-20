@@ -48,6 +48,9 @@ Route::get('/smoke', function () use ($persistence) {
             'smoke_marker' => in_array('deneb_smoke_markers', $tables, true)
                 ? DB::table('deneb_smoke_markers')->value('note')
                 : null,
+            'smoke_notes' => in_array('deneb_smoke_markers', $tables, true)
+                ? DB::table('deneb_smoke_markers')->orderBy('id')->pluck('note')
+                : [],
         ];
     } catch (Throwable $exception) {
         $database += [
@@ -94,6 +97,32 @@ Route::get('/smoke/mark', function () use ($markerLocations, $persistence) {
     return response()->json([
         'release' => basename(base_path()),
         'written' => $written,
+        'persistence' => $persistence(),
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
+
+// Simulates changes made after a recovery point: removes both file markers and
+// adds a database row. Restoring the recovery point must bring back the markers
+// and remove the row.
+Route::get('/smoke/after-backup', function () use ($markerLocations, $persistence) {
+    $changes = [];
+    foreach ($markerLocations() as $name => $file) {
+        $changes[$name] = is_file($file) && unlink($file) ? 'marker removed' : 'no marker';
+    }
+    try {
+        DB::table('deneb_smoke_markers')->insert([
+            'note' => 'Added after the recovery point',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $changes['database'] = 'row added';
+    } catch (Throwable $exception) {
+        $changes['database'] = 'error: '.Str::limit($exception->getMessage(), 200);
+    }
+
+    return response()->json([
+        'release' => basename(base_path()),
+        'changes' => $changes,
         'persistence' => $persistence(),
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
