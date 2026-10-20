@@ -8,6 +8,9 @@ Incluye `composer.lock`, no necesita build de assets y no tiene secretos.
 - `/smoke` — JSON con versión de Laravel y PHP, release activo y estado de la base:
   si conecta, cuántas tablas hay, qué migraciones corrieron y el marcador de prueba.
   Funciona aunque la base esté vacía (no usa sesiones).
+- `/smoke/mark` — escribe una sola vez un marcador con fecha y release en
+  `storage/app/` y en `data/`; las llamadas siguientes no lo cambian. `/smoke`
+  muestra ambos en `persistence` e indica si cada directorio es un enlace administrado.
 - `/up` — health check estándar de Laravel.
 - `/` — redirige a `/smoke`.
 
