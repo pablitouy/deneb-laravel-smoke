@@ -17,9 +17,9 @@ $markerLocations = fn (): array => [
 $persistence = function () use ($markerLocations): array {
     $result = [];
     foreach ($markerLocations() as $name => $file) {
-        $directory = dirname($file);
+        // Deneb links the top-level directory (storage/ or data/) into shared state.
         $result[$name] = [
-            'directory_is_link' => is_link($directory),
+            'directory_is_link' => is_link(base_path($name)),
             'marker' => is_file($file) ? trim((string) file_get_contents($file)) : null,
         ];
     }
